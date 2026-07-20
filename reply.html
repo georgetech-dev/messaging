@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Reply to SMS</title>
+    <script type="module" src="/src/main.js"></script>
+  </head>
+  <body>
+    <main id="app">
+      <section class="reply-card">
+        <img src="/assets/logo.png" alt="GeorgeTech" class="logo" />
+        <h1>Reply to SMS</h1>
+        <p id="state" class="muted">Checking reply link...</p>
+
+        <article id="message-context" class="context" hidden>
+          <span>Original message</span>
+          <strong id="sender"></strong>
+          <p id="body"></p>
+        </article>
+
+        <form id="reply-form" class="form-stack" hidden>
+          <label>
+            Your reply
+            <textarea id="reply-message" rows="7" maxlength="1900" required></textarea>
+          </label>
+          <div class="footer">
+            <span id="char-count">0 / 1900</span>
+            <button id="send-button" type="submit">Send Reply</button>
+          </div>
+        </form>
+      </section>
+    </main>
+  </body>
+</html>
