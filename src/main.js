@@ -1,5 +1,3 @@
-import './style.css'
-
 const supabaseUrl = 'https://lgchqleltppfdgtpgsbj.supabase.co'
 const supabaseKey = 'sb_publishable_ZHBBlxQVW0MBUUwQ5Kv1Aw_uufRzvu1'
 const functionsUrl = `${supabaseUrl}/functions/v1`
@@ -16,7 +14,7 @@ const elements = {
   button: document.getElementById('send-button'),
 }
 
-const token = new URLSearchParams(window.location.search).get('t') || ''
+const token = getReplyToken()
 
 if (!elements.state || !elements.form || !elements.message || !elements.button) {
   throw new Error('SMS reply page did not load correctly. Required page elements are missing.')
@@ -124,6 +122,17 @@ function setBusy(isBusy) {
 
 function formatDate(value) {
   return value ? new Date(value).toLocaleString() : ''
+}
+
+function getReplyToken() {
+  const search = window.location.search || ''
+  const params = new URLSearchParams(search)
+  const namedToken = params.get('t') || params.get('token')
+  if (namedToken) return namedToken.trim()
+
+  const rawQuery = search.startsWith('?') ? search.slice(1) : search
+  if (!rawQuery || rawQuery.includes('=')) return ''
+  return decodeURIComponent(rawQuery).trim()
 }
 
 function errorMessage(error) {
