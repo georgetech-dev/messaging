@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Reply to SMS</title>
+    <script>
+      const target = new URL('/reply.html', window.location.origin)
+      target.search = window.location.search
+      if (window.location.pathname.startsWith('/r/')) {
+        const token = window.location.pathname.split('/r/')[1]
+        target.pathname = `/r/${token}`
+      }
+      window.history.replaceState({}, '', target.toString())
+    </script>
+  </head>
+  <body>
+    <script>
+      fetch('/reply.html', { cache: 'no-cache' })
+        .then((response) => response.text())
+        .then((html) => {
+          document.open()
+          document.write(html)
+          document.close()
+        })
+        .catch(() => {
+          document.body.textContent = 'The reply page could not be loaded.'
+        })
+    </script>
+  </body>
+</html>

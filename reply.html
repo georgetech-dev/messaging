@@ -9,18 +9,23 @@
   <body>
     <main id="app">
       <section class="reply-card">
-        <img src="/assets/logo.png" alt="GeorgeTech" class="logo" />
-        <h1>Reply to SMS</h1>
-        <p id="state" class="muted">Checking reply link...</p>
+        <header class="brand">
+          <img src="/assets/logo.png" alt="GeorgeTech SMS Portal" class="logo" />
+          <div>
+            <span class="eyebrow">Secure SMS reply</span>
+            <h1>Reply to SMS</h1>
+          </div>
+        </header>
+        <p id="state" class="muted status-text">Checking reply link...</p>
 
         <form id="verify-form" class="form-stack" hidden>
           <label>
             Last 4 digits of your phone number
-            <input id="phone-last4" inputmode="numeric" pattern="[0-9]{4}" maxlength="4" autocomplete="one-time-code" required />
+            <input id="phone-last4" class="code-input" inputmode="numeric" pattern="[0-9]{4}" maxlength="4" autocomplete="one-time-code" placeholder="1234" required />
           </label>
           <label>
             4 digit passcode
-            <input id="passcode" inputmode="numeric" pattern="[0-9]{4}" maxlength="4" autocomplete="one-time-code" required />
+            <input id="passcode" class="code-input" inputmode="numeric" pattern="[0-9]{4}" maxlength="4" autocomplete="one-time-code" placeholder="0000" required />
           </label>
           <button id="verify-button" type="submit">Continue</button>
         </form>
@@ -210,6 +215,9 @@
       }
 
       function getReplyToken() {
+        const pathMatch = window.location.pathname.match(/^\/r\/([^/?#]+)/)
+        if (pathMatch?.[1]) return decodeURIComponent(pathMatch[1]).trim()
+
         const search = window.location.search || ''
         const params = new URLSearchParams(search)
         const namedToken = params.get('t') || params.get('token')

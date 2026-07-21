@@ -5,7 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>SMS Reply</title>
     <script>
-      const target = new URL('/reply.html', window.location.origin)
+      const pathMatch = window.location.pathname.match(/^\/r\/([^/?#]+)/)
+      const target = new URL(pathMatch ? `/r/${pathMatch[1]}` : '/reply.html', window.location.origin)
       target.search = window.location.search
       window.location.replace(target.toString())
     </script>

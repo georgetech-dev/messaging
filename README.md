@@ -26,7 +26,7 @@ sms.georgetech.uk
 Set the SMS Portal setting `Reply page URL` to:
 
 ```text
-https://sms.georgetech.uk
+https://sms.georgetech.uk/r
 ```
 
 The page calls these Supabase Edge Functions:
