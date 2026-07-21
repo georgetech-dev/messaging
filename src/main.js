@@ -1,5 +1,3 @@
-import './style.css'
-
 const supabaseUrl = 'https://lgchqleltppfdgtpgsbj.supabase.co'
 const supabaseKey = 'sb_publishable_ZHBBlxQVW0MBUUwQ5Kv1Aw_uufRzvu1'
 const functionsUrl = `${supabaseUrl}/functions/v1`
