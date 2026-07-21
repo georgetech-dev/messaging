@@ -13,6 +13,18 @@
         <h1>Reply to SMS</h1>
         <p id="state" class="muted">Checking reply link...</p>
 
+        <form id="verify-form" class="form-stack" hidden>
+          <label>
+            Last 4 digits of your phone number
+            <input id="phone-last4" inputmode="numeric" pattern="[0-9]{4}" maxlength="4" autocomplete="one-time-code" required />
+          </label>
+          <label>
+            4 digit passcode
+            <input id="passcode" inputmode="numeric" pattern="[0-9]{4}" maxlength="4" autocomplete="one-time-code" required />
+          </label>
+          <button id="verify-button" type="submit">Continue</button>
+        </form>
+
         <article id="message-context" class="context" hidden>
           <span>Original message</span>
           <strong id="sender"></strong>
@@ -43,6 +55,10 @@
         sender: document.getElementById('sender'),
         body: document.getElementById('body'),
         form: document.getElementById('reply-form'),
+        verifyForm: document.getElementById('verify-form'),
+        phoneLast4: document.getElementById('phone-last4'),
+        passcode: document.getElementById('passcode'),
+        verifyButton: document.getElementById('verify-button'),
         message: document.getElementById('reply-message'),
         charCount: document.getElementById('char-count'),
         button: document.getElementById('send-button'),
@@ -60,8 +76,19 @@
         elements.state.textContent = errorMessage(event.reason)
       })
 
+      for (const codeInput of [elements.phoneLast4, elements.passcode]) {
+        codeInput.addEventListener('input', () => {
+          codeInput.value = codeInput.value.replace(/\D/g, '').slice(0, 4)
+        })
+      }
+
       elements.message.addEventListener('input', () => {
         elements.charCount.textContent = `${elements.message.value.length} / 1900`
+      })
+
+      elements.verifyForm.addEventListener('submit', async (event) => {
+        event.preventDefault()
+        await verifyLink()
       })
 
       elements.form.addEventListener('submit', async (event) => {
@@ -73,7 +100,12 @@
 
         try {
           console.info(logPrefix, 'Sending reply')
-          await callFunction('sms-reply-link-send', { token, message })
+          await callFunction('sms-reply-link-send', {
+            token,
+            message,
+            phone_last4: elements.phoneLast4.value,
+            passcode: elements.passcode.value,
+          })
           elements.form.hidden = true
           elements.state.textContent = 'Reply sent. This link is now closed.'
           window.history.replaceState({}, '', window.location.pathname)
@@ -92,17 +124,35 @@
           return
         }
 
+        elements.verifyForm.hidden = false
+        elements.state.textContent = 'Enter the phone digits and passcode from the message.'
+      }
+
+      async function verifyLink() {
+        if (elements.phoneLast4.value.length !== 4 || elements.passcode.value.length !== 4) {
+          elements.state.textContent = 'Enter the last 4 phone digits and 4 digit passcode.'
+          return
+        }
+
+        setVerifyBusy(true)
+
         try {
           console.info(logPrefix, 'Checking reply token')
-          const data = await callFunction('sms-reply-link-get', { token })
+          const data = await callFunction('sms-reply-link-get', {
+            token,
+            phone_last4: elements.phoneLast4.value,
+            passcode: elements.passcode.value,
+          })
           elements.sender.textContent = data.reply.inbound_sender || 'Unknown sender'
           elements.body.textContent = data.reply.inbound_body || ''
           elements.context.hidden = false
           elements.form.hidden = false
+          elements.verifyForm.hidden = true
           elements.state.textContent = `Reply link expires ${formatDate(data.reply.expires_at)}.`
         } catch (error) {
           console.error(logPrefix, 'Reply token check failed', error)
           elements.state.textContent = errorMessage(error)
+          setVerifyBusy(false)
         }
       }
 
@@ -148,6 +198,11 @@
       function setBusy(isBusy) {
         elements.button.disabled = isBusy
         elements.button.textContent = isBusy ? 'Sending...' : 'Send Reply'
+      }
+
+      function setVerifyBusy(isBusy) {
+        elements.verifyButton.disabled = isBusy
+        elements.verifyButton.textContent = isBusy ? 'Checking...' : 'Continue'
       }
 
       function formatDate(value) {
